@@ -1,0 +1,113 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Simulation and build artifacts
+sim_build/
+*.vvp
+*.vcd
+*.fst
+*.ghw
+*.cf
+*.o
+*.so
+*.a
+
+# Vivado/Xilinx
+*.jou
+*.log
+*.str
+*.xpr
+.Xil/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+
+# ModelSim/QuestaSim
+work/
+transcript
+*.wlf
+*.vstf
+*.ucdb
+vsim.wlf
+
+# Icarus Verilog
+*.out
+*.vpi
+
+# Other HDL tools
+*.history
+*.qpg
+*.qtl
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Keep these file types (commented for clarity)
+# *.py - Python source files
+# *.sv - SystemVerilog files  
+# *.v - Verilog files
+# *.vhd - VHDL files
+# *.txt - Text files
+# *.yml - YAML files
+# *.yaml - YAML files
+# *.md - Markdown files
+# *.rst - reStructuredText files
