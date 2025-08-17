@@ -34,10 +34,31 @@ async def load_image(clk,data,valid,last,ready):
         await RisingEdge(clk)
     data.value = 0x00
     valid.value = 1
-    last.value
+    last.value = 1
     await RisingEdge(clk)
+    data.value = 0x00
+    valid.value = 0
+    last.value = 0
 
 
+async def read_histogram(uut,histo):
+    for i in range (256):
+        value = histo[i].value
+        match i:
+            case 0:
+                assert value == 1, (f"value for indiex {i} should be 1, reading back {value}")
+            case 15:
+                assert value == 2, (f"value for indiex {i} should be 2, reading back {value}")
+            case 255:
+                assert value == 4, (f"value for indiex {i} should be 4, reading back {value}")
+            case _:
+                assert value == 0, (f"value for indiex {i} should be 0, reading back {value}")
+        
+            
+            
+        #uut._log.info("index=" + str(i) +" value="+ str(hex(value)))
+
+    
 
 
 
@@ -54,6 +75,8 @@ async def memory_test(uut):
     await Timer(4,units="ns")
     await load_image(uut.i_clk,uut.i_data,uut.i_valid,uut.i_last,uut.o_ready)
     await Timer(4,units="ns")
+    await read_histogram(uut,uut.o_histogram)
+    await Timer(1,units="ns")
 
     
 
