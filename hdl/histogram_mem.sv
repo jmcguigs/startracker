@@ -8,7 +8,7 @@ module histogram_mem(
     input i_last,
     output logic o_ready,
 
-    output logic [255:0] o_histogram [15:0],
+    output logic [15:0] o_histogram [255:0],
     output logic o_valid,
     input  i_ready
 );
