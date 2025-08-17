@@ -1,8 +1,8 @@
 `timescale 1ns/1ps
 
 module histogram_derivative(
-    input logic [15:0] i_histogram [0:255],
-    output logic [15:0] o_derivative [0:255]
+    input logic [15:0] i_histogram [255:0],
+    output logic [15:0] o_derivative [255:0]
 );
 
     // take the discrete derivative of the histogram
