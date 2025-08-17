@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1ns/100ps
 
 module histogram_mem(
     input i_clk,
@@ -8,22 +8,25 @@ module histogram_mem(
     input i_last,
     output logic o_ready,
 
-    output logic [7:0][15:0] o_histogram,
+    output logic [255:0] o_histogram [15:0],
     output logic o_valid,
     input  i_ready
-
 );
 
-enum {s_initial = 0, s_request = 1, s_recieve=2, s_done=3 , s_clear =4} state;
-intager i;
+initial begin 
+$dumpfile("vars.vcd");
+$dumpvars(0,histogram_mem);
+end
 
-    always_ff @(i_clk) begin : 
+enum {s_initial = 0, s_recieve = 1, s_done = 3 ,s_clear = 4} state;
+integer i;
+
+    always_ff @(posedge(i_clk)) begin
         if(i_reset) begin
             state <= s_initial; 
-            o_histogram <= 0;
             o_valid <= 0;
             o_ready <= 0;
-            for (i=0 i<256; i=i+1) o_histogram[i] <= 0;
+            for (i=0; i<256; i=i+1) o_histogram[i] <= 0;
         end else begin 
 
             o_ready <= 0;
@@ -48,7 +51,7 @@ intager i;
                     end
                 end// state
                 s_clear : begin
-                    for (i=0 i<256; i=i+1) o_histogram[i] <= 0;
+                    for (i=0; i<256; i=i+1) o_histogram[i] <= 0;
                     state <= s_initial;
                 end
             endcase 
