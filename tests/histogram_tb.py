@@ -13,28 +13,46 @@ VERILOG_FILE_NAME = "histogram_mem.sv"
 MODULE_NAME ="histogram_mem"
 PYTHON_FILE_NAME="histogram_tb"
 
-async def clk_gen(clk,half_clk_cycle=1):
-    clk.value = half_clk_cycle
-    await Timer(1,units="ns")
-    clk.value = half_clk_cycle
-    await Timer(1,units="ns")
 
-async def Reset(uut,reset,clk,cycles=4):
+async def Reset(reset,clk,cycles=4):
     reset.value = 1
     for i in range(cycles):
-        uut._log.info("Test me0")
         await RisingEdge(clk)
-        uut._log.info("Test me1")
     reset.value = 0
+    await Timer(100,units="ps")
 
+async def load_image(clk,data,valid,last,ready):
+    if(ready.value ==0):
+        await RisingEdge(ready)
+    data.value = 0xFF
+    valid.value = 1
+    for i in range(4):
+        await RisingEdge(clk)
+    data.value = 0x0F
+    valid.value = 1
+    for i in range(2):
+        await RisingEdge(clk)
+    data.value = 0x00
+    valid.value = 1
+    last.value
+    await RisingEdge(clk)
+
+
+
+
+
+    
     
 
 
 @cocotb.test()
 async def memory_test(uut):
-    cocotb.start_soon(clk_gen(uut.i_clk))
+    clock = Clock(uut.i_clk, 2, units="ns")
+    cocotb.start_soon(clock.start(start_high=True))
     await Timer(100,units="ps")
-    await Reset(uut,uut.i_reset,uut.i_clk)
+    await Reset(uut.i_reset,uut.i_clk)
+    await Timer(4,units="ns")
+    await load_image(uut.i_clk,uut.i_data,uut.i_valid,uut.i_last,uut.o_ready)
     await Timer(4,units="ns")
 
     
