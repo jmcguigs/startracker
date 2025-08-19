@@ -1,7 +1,7 @@
 `timescale 1ns/100ps
-`include "histogram_derivative.sv"
+//`include "histogram_derivative.sv"
 
-module moduleName (
+module histogram_derivative_wrapper (
     input i_clk,
     input i_reset,
     input [15:0] i_histogram [255:0],
