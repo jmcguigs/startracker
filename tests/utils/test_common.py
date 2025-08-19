@@ -1,5 +1,3 @@
-
-import cocotb
 from cocotb.triggers import RisingEdge
 
 class Test:

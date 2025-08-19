@@ -1,15 +1,12 @@
 import os
 import sys
-import random
 from pathlib import Path
 
 import cocotb
-from cocotb.triggers import RisingEdge
-from cocotb.triggers import FallingEdge
 from cocotb.clock import Clock, Timer
 from cocotb.runner import get_runner
 
-from test_common import Test
+from tests.utils.test_common import Test
 
 
 
