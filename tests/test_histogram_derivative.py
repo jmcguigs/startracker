@@ -1,10 +1,8 @@
 import os
 import sys
-import random
 from pathlib import Path
 
 import cocotb
-from cocotb.types import LogicArray, Range
 from cocotb.clock import Timer
 from cocotb.runner import get_runner
 

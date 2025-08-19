@@ -1,3 +1,6 @@
 # Startracker Implementation in an FPGA
 
-TEST
+Image processing algorithms designed for FPGA implementation
+
+### Setup
+ - `pip install -r requirements.txt`
