@@ -6,7 +6,7 @@ import cocotb
 from cocotb.clock import Clock, Timer
 from cocotb.runner import get_runner
 
-from tests.utils.test_common import Test
+from utils.test_common import Test
 
 
 
@@ -29,11 +29,9 @@ async def memory_test(uut):
 
     await Timer(2,units="ns")
     
-    
 
 
-
-def test_counter_runner():
+def test_wrapper_runner():
     """
     Simulate the 4-bit binary counter using cocotb and the specified HDL language.
     """
@@ -69,4 +67,4 @@ def test_counter_runner():
 
 
 if __name__ == "__main__":
-    test_counter_runner()
+    test_wrapper_runner()

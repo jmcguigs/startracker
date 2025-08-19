@@ -19,6 +19,7 @@ async def Reset(reset,clk,cycles=4):
     reset.value = 0
     await Timer(100,units="ps")
 
+
 async def load_image(clk,data,valid,last,ready):
     if(ready.value ==0):
         await RisingEdge(ready)
@@ -51,17 +52,9 @@ async def read_histogram(uut,histo):
                 assert value == 4, (f"value for indiex {i} should be 4, reading back {value}")
             case _:
                 assert value == 0, (f"value for indiex {i} should be 0, reading back {value}")
-        
-            
+          
             
         #uut._log.info("index=" + str(i) +" value="+ str(hex(value)))
-
-    
-
-
-
-    
-    
 
 
 @cocotb.test()
@@ -77,10 +70,7 @@ async def memory_test(uut):
     await Timer(1,units="ns")
 
     
-
-
-
-def test_counter_runner():
+def test_histogram_runner():
     """
     Simulate the 4-bit binary counter using cocotb and the specified HDL language.
     """
@@ -111,4 +101,4 @@ def test_counter_runner():
 
 
 if __name__ == "__main__":
-    test_counter_runner()
+    test_histogram_runner()
