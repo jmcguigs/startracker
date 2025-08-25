@@ -22,9 +22,8 @@ module threshold #(
         o_threshold = 8'h00; // sentinel value if no positive bin is found
         for (int i = 7; i >= 0; i--) begin
             // check if the LSB of the bin is not set (i.e., bin is positive)
-            if (i_histogram_chunk[i*16] == 1'b0) begin
+            if (i_histogram_chunk[((i + 1) * 16) - 1] == 1'b0) begin
                 o_threshold = i_bin_index + i;
-                break; // exit loop once the first positive bin is found
             end
         end
     end
