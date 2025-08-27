@@ -15,7 +15,6 @@ from utils.test_common import Test
 
 
 VERILOG_FILE_NAMES = []
-VERILOG_FILE_NAMES.append("through_module.sv")
 VERILOG_FILE_NAMES.append("histogram_derivative.sv")
 VERILOG_FILE_NAMES.append("histogram_derivative_wrapper.sv")
 
@@ -98,7 +97,7 @@ async def Axi4_Stream_Reciever_Derriviative(clk,
 
 # test 1 
 @cocotb.test()
-async def memory_test(uut):
+async def flat(uut):
 
     uut.i_histogram_flat.value = 0
     uut.i_valid.value=0
@@ -109,26 +108,59 @@ async def memory_test(uut):
     await test.Reset(uut.i_clk, uut.i_reset)
     input_data = pattern_gen(2,"uniform")
     my_deriv=calculate_deriviative(input_data)
-    print(input_data)
-    print("\n\n\nshowderiv\n")
-    print(my_deriv)
-    print("\n\n\n\n")
     excpected = test.Flatten(calculate_deriviative(input_data),16)
     await RisingEdge(uut.i_clk)
     cocotb.start_soon(Axi4_Stream_If_Histogram(uut.i_clk, uut.i_histogram_flat, uut.i_valid, uut.o_ready, test.Flatten(input_data,16)))
-    recv = await Axi4_Stream_Reciever_Derriviative(uut.i_clk,uut.i_ready,uut.o_valid,uut.o_derivative_flat,False,10,1)
+    recv = await Axi4_Stream_Reciever_Derriviative(uut.i_clk,uut.i_ready,uut.o_valid,uut.o_derivative_flat,True,10,1)
     await RisingEdge(uut.i_clk)
     excpected = BinaryValue(excpected,256*16)
     assert  excpected == recv[0] , (f"\nexpected {excpected} \n\nrecieved {recv}")
-    
-
-    #cocotb.start_soon(Axi4_Stream_Reciever_Derriviative(uut.i_clk,
-     #                                                        uut.i_ready,
-     #                                                        uut.o_valid,
-     #                                                        uut.o_derivative,
-     #                                                        False))
     await Timer(10*2,units="ns")
 
+
+# test 2
+@cocotb.test()
+async def ramp(uut):
+
+    uut.i_histogram_flat.value = 0
+    uut.i_valid.value=0
+    uut.i_ready.value=0
+    clock = Clock(uut.i_clk, 2, units="ns")
+    cocotb.start_soon(clock.start(start_high=True))
+    test = Test()
+    await test.Reset(uut.i_clk, uut.i_reset)
+    input_data = pattern_gen(2,"ramp")
+    my_deriv=calculate_deriviative(input_data)
+    excpected = test.Flatten(calculate_deriviative(input_data),16)
+    await RisingEdge(uut.i_clk)
+    cocotb.start_soon(Axi4_Stream_If_Histogram(uut.i_clk, uut.i_histogram_flat, uut.i_valid, uut.o_ready, test.Flatten(input_data,16)))
+    recv = await Axi4_Stream_Reciever_Derriviative(uut.i_clk,uut.i_ready,uut.o_valid,uut.o_derivative_flat,True,10,1)
+    await RisingEdge(uut.i_clk)
+    recieved = int(recv[0])
+    assert  excpected ==  recieved, (f"\nexpected {excpected:x} \n\nrecieved {recieved:x}")
+    await Timer(10*2,units="ns")
+
+
+@cocotb.test()
+async def random_input(uut):
+
+    uut.i_histogram_flat.value = 0
+    uut.i_valid.value=0
+    uut.i_ready.value=0
+    clock = Clock(uut.i_clk, 2, units="ns")
+    cocotb.start_soon(clock.start(start_high=True))
+    test = Test()
+    await test.Reset(uut.i_clk, uut.i_reset)
+    input_data = pattern_gen(2,"ramp")
+    my_deriv=calculate_deriviative(input_data)
+    excpected = test.Flatten(calculate_deriviative(input_data),16)
+    await RisingEdge(uut.i_clk)
+    cocotb.start_soon(Axi4_Stream_If_Histogram(uut.i_clk, uut.i_histogram_flat, uut.i_valid, uut.o_ready, test.Flatten(input_data,16)))
+    recv = await Axi4_Stream_Reciever_Derriviative(uut.i_clk,uut.i_ready,uut.o_valid,uut.o_derivative_flat,True,10,1)
+    await RisingEdge(uut.i_clk)
+    recieved = int(recv[0])
+    assert  excpected ==  recieved, (f"\nexpected {excpected:x} \n\nrecieved {recieved:x}")
+    await Timer(10*2,units="ns")
 
     
 
