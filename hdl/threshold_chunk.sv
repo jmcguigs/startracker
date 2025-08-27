@@ -1,6 +1,6 @@
 `timescale 1ns/100ps
 
-module threshold #(
+module threshold_chunk #(
     parameter TOP = 1
 ) (
     input [8*16-1:0] i_histogram_chunk,
@@ -11,7 +11,7 @@ module threshold #(
     intial begin 
         if(TOP == 1) begin
             $dumpfile("vars.vcd");
-            $dumpvars(0, threshold);
+            $dumpvars(0, threshold_chunk);
         end
     end
 
