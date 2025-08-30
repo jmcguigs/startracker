@@ -5,16 +5,17 @@
 
 module histogram_derivative_wrapper #(
     parameter TOP = 1, 
-    parameter SIZE = 16*256-1
+    parameter HISTO_SIZE = 16*256-1,
+    parameter DERIVATIVE_SIZE = 17*256-1
 
 )(
     input i_clk,
     input i_reset,
-    input [SIZE:0] i_histogram_flat,
+    input [HISTO_SIZE:0] i_histogram_flat,
     input i_valid,
     output logic o_ready,
     
-    output logic [SIZE:0] o_derivative_flat,
+    output logic [DERIVATIVE_SIZE:0] o_derivative_flat,
     output logic o_valid,
     input i_ready
 );
@@ -30,9 +31,9 @@ end
 
 enum {s_normal=0, s_skid=1} state;
 
-logic [SIZE:0] histogram_flat;
-logic [SIZE:0] skid_buffer_flat;
-logic [SIZE:0] histogram_derivative_data_flat;
+logic [HISTO_SIZE:0] histogram_flat;
+logic [DERIVATIVE_SIZE:0] skid_buffer_flat;
+logic [DERIVATIVE_SIZE:0] histogram_derivative_data_flat;
 logic valid;  
 
 
