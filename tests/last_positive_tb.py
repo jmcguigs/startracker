@@ -23,7 +23,9 @@ TOP_MODULE_NAME ="last_positive"
 PYTHON_FILE_NAME="last_positive_tb"
 
 
-
+@cocotb.test()
+async def need_to_write_a_test(uut):
+    pass
 
 
 def test_wrapper_runner():
