@@ -38,7 +38,7 @@ module threshold_chunk #(
             // check if the LSB of the bin is not set (i.e., bin is positive)
             if(i==0) begin 
                 if (histogram_chunk[i] > 0) threshhold[i] = i_bin_index + i;   
-                else threshhold[i] = 0 + i_bin_index;
+                else threshhold[i] = 0;
             end else begin 
                 if (histogram_chunk[i] > 0) threshhold[i] = i_bin_index + i;
                 else threshhold[i] = threshhold[i-1];

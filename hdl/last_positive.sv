@@ -11,24 +11,24 @@ module last_positive #(
     input i_ready
 );
 
+    logic [7:0] threshhold_pipe [31:0];
+    logic [7:0] threshhold_reg [31:0];
+    logic [7:0] mult_lookup [31:0];
+    enum {s_ready=0,s_search=1,s_send=2} state;
+    logic [7:0] tp0, tp1, tp2, tp3;
 
-    logic [7:0] threshhold_pipe [16:0];
-    logic [7:0] threshhold_reg [16:0];
-    logic search;
-
-    logic [7:0] mult_lookup [15:0];
+    
+    assign tp0 = threshhold_reg[31];
+    assign tp1 = threshhold_reg[31];
+    assign tp2 = threshhold_reg[30];
+    assign tp3 = threshhold_reg[29];
 
 
     genvar j;
-    for( j = 0; j<16; j++)
+    for( j = 0; j<32; j++)
     begin
-        assign mult_lookup[j] = j * 16;
+        assign mult_lookup[j] = j * 8;
     end
-
-
-
-
-    enum {s_ready=0,s_search=1,s_send=2} state;
 
     
     initial begin 
@@ -40,7 +40,7 @@ module last_positive #(
 
     generate 
         genvar i;
-        for(i=0; i<16; i = i+1) begin 
+        for(i=0; i<32; i = i+1) begin 
             
             
             threshold_chunk  #(.TOP (0)) threshold_gen (
@@ -58,10 +58,10 @@ module last_positive #(
             o_threshold <= 0;
             o_valid <= 0;
             o_ready <= 0;
-            search <= 0;
-            state <= 0;
+            state <= s_ready;
+            o_threshold <= 0;
 
-            for(int k = 0; k<16; k++) begin
+            for(int k = 0; k<32; k++) begin
                 threshhold_pipe[k] <= 0;
             end
         end else begin
@@ -69,18 +69,16 @@ module last_positive #(
             o_threshold <= o_threshold;
             o_valid <= 0;
             o_ready <= 0;
-            search <= 0;
-            state <= s_ready;
+            state <= state;
 
             case(state)
                 s_ready: 
                     begin
                         o_ready <= 1;
-                        if(i_valid) begin
+                        if(i_valid && o_ready) begin
                             o_ready <= 0;
-                            search <= 1;
                             state <= s_search;
-                            for(int i = 0; i<16; i++) begin
+                            for(int i = 0; i<32; i++) begin
                                 threshhold_pipe[i] <= threshhold_reg[i];   
                             end
                         end 
@@ -88,11 +86,11 @@ module last_positive #(
                 
                 s_search:
                 begin
-                    for(int i = 0; i<15; i++) begin
+                    for(int i = 0; i<32; i++) begin
                         threshhold_pipe[i+1] <= threshhold_pipe[i];
                     end
-                    if( threshhold_pipe[15]> 0) begin
-                        o_threshold <= threshhold_pipe[15];
+                    if( threshhold_pipe[31]> 0) begin
+                        o_threshold <= threshhold_pipe[31];
                         state <= s_send;
                         o_valid <= 1;
                     end

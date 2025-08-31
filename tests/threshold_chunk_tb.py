@@ -38,8 +38,8 @@ def expected_gen(array,base):
     last_pos = 0
     for i,value in enumerate(array):
         if value > 0:
-            last_pos = i
-    return last_pos + base
+            last_pos = i + base
+    return last_pos
 
 
 

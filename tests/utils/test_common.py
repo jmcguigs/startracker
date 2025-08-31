@@ -81,9 +81,9 @@ class Test:
 
 
 class AXIS_Test:
-    def __init__(self,clk,reset,i_data,i_valid,o_ready,o_data,o_valid,i_ready):
-        self.clk = clk
-        self.reset = reset
+    def __init__(self,i_clk,i_reset,i_data,i_valid,o_ready,o_data,o_valid,i_ready):
+        self.clk = i_clk
+        self.reset = i_reset
         self.i_data = i_data
         self.i_valid = i_valid
         self.o_ready = o_ready
@@ -92,17 +92,31 @@ class AXIS_Test:
         self.i_ready = i_ready 
 
     async def Reset(self,cycles=4):
+        self.i_valid.value = 0
+        self.i_ready.value = 0
         self.reset.value = 1
         for i in range(cycles):
             await RisingEdge(self.clk)
         self.reset.value = 0
 
     async def Send(self,data):
-        self.i_data.value = data
-        self.i_valid.value = 1
-        await RisingEdge(self.o_ready)
-        await RisingEdge(self.clk)
+        sent = False
+        while(sent == False):
+            self.i_data.value = data
+            self.i_valid.value = 1
+            if(self.o_ready.value):
+                await RisingEdge(self.clk)
+                print("ready to send data")
+                sent = True
+            else:
+                await RisingEdge(self.clk)
+        
         self.i_valid.value = 0
+        self.i_data.value = 0
+                
+            
+        
+
 
     async def Recieve(self,
                       expected_reads=1,
@@ -113,30 +127,36 @@ class AXIS_Test:
         
         for i in range(expected_reads):
             if(random_ready):
-                
-                while(self.i_ready.value == 0):
+                ready_set = False
+                while(not ready_set):
                     if(random.randint(0,99) < ready_percent):
+                        print(f"ready set in read {i}")
                         self.i_ready.value = 1
+                        ready_set = True
                     else:
                         self.i_ready.value = 0
+                        print(f"not set ready in {i}")
                         await RisingEdge(self.clk)
                 
-                if(self.o_valid.value==0):
-                    await RisingEdge(self.o_valid)
-                
-                collected_data.append(self.o_data.value)
-                await RisingEdge(self.clk)
-
+                for i in range(40):
+                    if(self.o_valid.value==0):
+                        print(f"not valid {i}")
+                        await RisingEdge(self.clk)
+                    else: 
+                        break
             else:
                 self.i_ready.value = 1
                 
-                if(self.o_valid.value==0):
-                    await RisingEdge(self.o_valid)
+                for i in range(40):
+                    if(self.o_valid.value==0):
+                        print(f"not valid {i}")
+                        await RisingEdge(self.clk)
+                    else: 
+                        break
                 
-                collected_data.append(self.o_data.value)
-                await RisingEdge(self.clk)
+            collected_data.append(self.o_data.value)
             
-        self.i_ready.value = 1    
+        self.i_ready.value = 0    
         return collected_data
     
     def Flatten(self,array,reg_size_in_bits):
@@ -148,6 +168,10 @@ class AXIS_Test:
                 flat +=  vector * 2**(reg_size_in_bits * i)
         return flat
 
+    async def Clkwait(self,wait=1):
+        for i in range(wait):
+            await RisingEdge(self.clk)
+    
 
 
 

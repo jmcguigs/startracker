@@ -11,6 +11,7 @@ from cocotb.triggers import FallingEdge
 from cocotb.binary import BinaryValue
 
 from utils.test_common import Test
+from utils.test_common import AXIS_Test
 
 
 
@@ -23,9 +24,83 @@ TOP_MODULE_NAME ="last_positive"
 PYTHON_FILE_NAME="last_positive_tb"
 
 
+def random_number_gen(low,high):
+    der = []
+    for val in range (256):
+        der.append( random.randint(low,high) )
+    print(der)
+    return der
+
+def expected_gen(array,base):
+    last_pos = 0
+    for i,value in enumerate(array):
+        if value > 0:
+            last_pos = i
+    return last_pos + base
+
+async def multi_write(test :AXIS_Test, write_array):
+    for i,input in enumerate(write_array):
+        test.Send(test.Flatten(input,17))
+        print(f"send {i}")
+
+
 @cocotb.test()
-async def need_to_write_a_test(uut):
-    pass
+async def always_ready_signle_write(uut):
+    test = AXIS_Test(i_clk = uut.i_clk,
+                     i_reset = uut.i_reset,
+                     i_data = uut.i_derivative_flat,
+                     i_valid = uut.i_valid,
+                     o_ready = uut.o_ready,
+                     o_data = uut.o_threshold,
+                     o_valid = uut.o_valid,
+                     i_ready = uut.i_ready)
+    
+    clock = Clock(uut.i_clk, 2, units="ns")
+    cocotb.start_soon(clock.start(start_high=True))
+    await Timer(2,units="ns")
+    await test.Reset()
+    await test.Clkwait(2)
+    input_array = random_number_gen(-200,30)
+    expected = expected_gen(input_array,0)
+    cocotb.start_soon(test.Send(test.Flatten(input_array,17)))
+    actual_array = await test.Recieve(1,False)
+    await test.Clkwait(2)
+    print(actual_array)
+    actual = int(actual_array[0])
+    assert actual == expected , (f"actaul = {actual}, expected = {expected}")
+
+
+@cocotb.test()
+async def random_ready_signle_write(uut):
+    test = AXIS_Test(i_clk = uut.i_clk,
+                     i_reset = uut.i_reset,
+                     i_data = uut.i_derivative_flat,
+                     i_valid = uut.i_valid,
+                     o_ready = uut.o_ready,
+                     o_data = uut.o_threshold,
+                     o_valid = uut.o_valid,
+                     i_ready = uut.i_ready)
+    
+    clock = Clock(uut.i_clk, 2, units="ns")
+    cocotb.start_soon(clock.start(start_high=True))
+    await Timer(2,units="ns")
+    await test.Reset()
+    await test.Clkwait(2)
+    input_array = random_number_gen(-200,5)
+    expected = expected_gen(input_array,0)
+    cocotb.start_soon(test.Send(test.Flatten(input_array,17)))
+    actual_array = await test.Recieve(1,True,5)
+    await test.Clkwait(2)
+    print(actual_array)
+    actual = int(actual_array[0])
+    assert actual == expected , (f"actaul = {actual}, expected = {expected}")
+
+
+    
+
+
+
+    
 
 
 def test_wrapper_runner():
