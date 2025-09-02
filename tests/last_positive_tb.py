@@ -28,7 +28,7 @@ def random_number_gen(low,high):
     der = []
     for val in range (256):
         der.append( random.randint(low,high) )
-    print(der)
+    #print(der)
     return der
 
 def expected_gen(array,base):
@@ -40,8 +40,8 @@ def expected_gen(array,base):
 
 async def multi_write(test :AXIS_Test, write_array):
     for i,input in enumerate(write_array):
-        test.Send(test.Flatten(input,17))
-        print(f"send {i}")
+        await test.Send(test.Flatten(input,17))
+        #print(f"send {i}")
 
 
 @cocotb.test()
@@ -60,14 +60,16 @@ async def always_ready_signle_write(uut):
     await Timer(2,units="ns")
     await test.Reset()
     await test.Clkwait(2)
-    input_array = random_number_gen(-200,30)
+    input_array = random_number_gen(-200,5)
     expected = expected_gen(input_array,0)
     cocotb.start_soon(test.Send(test.Flatten(input_array,17)))
     actual_array = await test.Recieve(1,False)
     await test.Clkwait(2)
-    print(actual_array)
+    #print(actual_array)
     actual = int(actual_array[0])
     assert actual == expected , (f"actaul = {actual}, expected = {expected}")
+
+
 
 
 @cocotb.test()
@@ -91,12 +93,43 @@ async def random_ready_signle_write(uut):
     cocotb.start_soon(test.Send(test.Flatten(input_array,17)))
     actual_array = await test.Recieve(1,True,5)
     await test.Clkwait(2)
-    print(actual_array)
+    #print(actual_array)
     actual = int(actual_array[0])
     assert actual == expected , (f"actaul = {actual}, expected = {expected}")
 
 
+@cocotb.test()
+async def random_ready_multi_write(uut):
+    writes = 7
+    test = AXIS_Test(i_clk = uut.i_clk,
+                     i_reset = uut.i_reset,
+                     i_data = uut.i_derivative_flat,
+                     i_valid = uut.i_valid,
+                     o_ready = uut.o_ready,
+                     o_data = uut.o_threshold,
+                     o_valid = uut.o_valid,
+                     i_ready = uut.i_ready)
     
+    clock = Clock(uut.i_clk, 2, units="ns")
+    cocotb.start_soon(clock.start(start_high=True))
+    await Timer(2,units="ns")
+    await test.Reset()
+    await test.Clkwait(2)
+    expected_list = []
+    input_array_list = []
+    for i in range(writes):
+        input_array = random_number_gen(-200,writes)
+        input_array_list.append(input_array)
+        expected_list.append(expected_gen(input_array,0))
+    cocotb.start_soon(multi_write(test,input_array_list))
+    actual_array = await test.Recieve(writes,True,10)
+    await test.Clkwait(2)
+    #print(actual_array)
+    for i, expected in enumerate(expected_list):
+        
+        actual = int(actual_array[i])
+        print(f"actaul = {actual}, expected = {expected} in send {i}")
+        assert actual == expected , (f"actaul = {actual}, expected = {expected} in send {i}")
 
 
 

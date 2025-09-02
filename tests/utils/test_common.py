@@ -1,4 +1,5 @@
 from cocotb.triggers import RisingEdge
+from cocotb.clock import Clock, Timer
 import random
 
 class Test:
@@ -101,18 +102,21 @@ class AXIS_Test:
 
     async def Send(self,data):
         sent = False
+        #print(f"trying to send {data:x}")
         while(sent == False):
+            await Timer(100, units="ps")
             self.i_data.value = data
             self.i_valid.value = 1
             if(self.o_ready.value):
                 await RisingEdge(self.clk)
-                print("ready to send data")
+                #print("ready to send data")
                 sent = True
             else:
                 await RisingEdge(self.clk)
-        
         self.i_valid.value = 0
         self.i_data.value = 0
+        await Timer(100, units="ps")
+        
                 
             
         
@@ -130,18 +134,18 @@ class AXIS_Test:
                 ready_set = False
                 while(not ready_set):
                     if(random.randint(0,99) < ready_percent):
-                        print(f"ready set in read {i}")
+                        #print(f"ready set in read {i}")
                         self.i_ready.value = 1
                         ready_set = True
                     else:
                         self.i_ready.value = 0
-                        print(f"not set ready in {i}")
-                        await RisingEdge(self.clk)
+                        #print(f"not set ready in {i}")
+                        await self.Clkwait()
                 
                 for i in range(40):
                     if(self.o_valid.value==0):
-                        print(f"not valid {i}")
-                        await RisingEdge(self.clk)
+                        #print(f"not valid {i}")
+                        await self.Clkwait()
                     else: 
                         break
             else:
@@ -149,14 +153,14 @@ class AXIS_Test:
                 
                 for i in range(40):
                     if(self.o_valid.value==0):
-                        print(f"not valid {i}")
-                        await RisingEdge(self.clk)
+                        #print(f"not valid {i}")
+                        await self.Clkwait()
                     else: 
                         break
                 
             collected_data.append(self.o_data.value)
-            
-        self.i_ready.value = 0    
+            await self.Clkwait()
+            self.i_ready.value = 0
         return collected_data
     
     def Flatten(self,array,reg_size_in_bits):
@@ -171,6 +175,7 @@ class AXIS_Test:
     async def Clkwait(self,wait=1):
         for i in range(wait):
             await RisingEdge(self.clk)
+            await Timer(100,units="ps")
     
 
 

@@ -15,13 +15,6 @@ module last_positive #(
     logic [7:0] threshhold_reg [31:0];
     logic [7:0] mult_lookup [31:0];
     enum {s_ready=0,s_search=1,s_send=2} state;
-    logic [7:0] tp0, tp1, tp2, tp3;
-
-    
-    assign tp0 = threshhold_reg[31];
-    assign tp1 = threshhold_reg[31];
-    assign tp2 = threshhold_reg[30];
-    assign tp3 = threshhold_reg[29];
 
 
     genvar j;
