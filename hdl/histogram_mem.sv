@@ -1,6 +1,6 @@
 `timescale 1ns/100ps
 
-module histogram_mem(
+module histogram_mem #(parameter TOP = 1)(
     input i_clk,
     input i_reset,
     input i_valid,
@@ -8,15 +8,36 @@ module histogram_mem(
     input i_last,
     output logic o_ready,
 
-    output logic [15:0] o_histogram [255:0],
+    output logic [256*16-1:0] o_histogram_flat,
     output logic o_valid,
     input  i_ready
 );
 
 initial begin 
-$dumpfile("vars.vcd");
-$dumpvars(0,histogram_mem);
+    if(TOP) begin
+        $dumpfile("vars.vcd");
+        $dumpvars(0,histogram_mem);
+    end
 end
+
+logic [15:0] o_histogram [255:0];
+
+logic [15:0] tp1,tp2,tp3,tp4; 
+
+assign tp1 = o_histogram[0];
+assign tp2 = o_histogram_flat[15:0];
+assign tp3 = o_histogram_flat[16*255+15:255*16];
+assign tp4 = o_histogram[255];
+
+
+genvar j;
+for (j = 0; j<256; j = j + 1) begin
+    assign o_histogram_flat[(j*16)+15:j*16] = o_histogram[j];
+end
+
+
+
+
 
 enum {s_initial = 0, s_recieve = 1, s_done = 3 ,s_clear = 4} state;
 integer i;
